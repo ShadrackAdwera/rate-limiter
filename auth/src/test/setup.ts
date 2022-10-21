@@ -19,13 +19,12 @@ declare global {
 }
 
 let mongo: MongoMemoryServer;
-const user = {
-  username: 'test user',
+export const user = {
   email: 'test@mail.com',
   password: '1qaz2wsx',
 };
 
-const loginRoute = '/api/auth/login';
+export const loginRoute = '/api/auth/login';
 
 jest.setTimeout(300000);
 beforeAll(async () => {
