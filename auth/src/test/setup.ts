@@ -2,7 +2,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import request from 'supertest';
 
-//import { app } from '../app';
+import { app } from '../app';
 
 interface ILogin {
   message: string;
@@ -49,5 +49,5 @@ afterAll(async () => {
 global.login = async () => {
   //await await request(app).post(signUpRoute).send(user).expect(201);
   const response = await request(app).post(loginRoute).send(user).expect(200);
-  return response.body;
+  return response.body.user.token;
 };
