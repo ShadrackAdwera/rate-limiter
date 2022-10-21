@@ -34,6 +34,15 @@ Config rules to be regularly updated by a worker service.
 - A minified rate limiter to be used on a single server - can't apply to a distributed environment.
   _to look at a distributed rate limiter later_
 
+## Solution Overview
+
+- Auth Service - authentication through email + password = jwt
+- Random Service - house requests - to include the rate limiter
+- Bench Service - send unprocessed requests here which are processed after the throttle time period has expired
+- Worker Service - Periodically update the throttle time on the Random Service and Bench Service.
+
+_TDD used for development process_
+
 ## Technologies Used :technologist:
 
 - Nodejs
