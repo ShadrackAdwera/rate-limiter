@@ -64,16 +64,58 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
       )
     );
   }
-  res
-    .status(201)
-    .json({
-      message: 'Sign Up Successful',
-      user: { id: newUser.id, email, token },
-    });
+  res.status(201).json({
+    message: 'Sign Up Successful',
+    user: { id: newUser.id, email, token },
+  });
 };
 
-const login = (req: Request, res: Response, next: NextFunction) => {
-  //
+const login = async (req: Request, res: Response, next: NextFunction) => {
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return next(new HttpError('Invalid inputs', 422));
+  }
+  let foundUser;
+  let isPassword: boolean;
+  let token: string;
+  const { email, password } = req.body;
+
+  //check if email exists in the DB
+  try {
+    foundUser = await User.findOne({ email }).exec();
+  } catch (error) {
+    return next(new HttpError('An error occured, try again', 500));
+  }
+  if (!foundUser) {
+    return next(new HttpError('Email does not exist, sign up instead', 404));
+  }
+
+  //compare passwords
+  try {
+    isPassword = await bcrypt.compare(password, foundUser.password);
+  } catch (error) {
+    return next(new HttpError('An error occured, try again', 500));
+  }
+
+  if (!isPassword) {
+    return next(new HttpError('Invalid password', 422));
+  }
+
+  //generate token --- also sign using tenant id
+  try {
+    token = await jwt.sign(
+      { id: foundUser.id, email: foundUser.email },
+      process.env.JWT_KEY!,
+      { expiresIn: '1h' }
+    );
+  } catch (error) {
+    return next(new HttpError('An error occured, try again', 500));
+  }
+
+  res.status(200).json({
+    message: 'Login Successful',
+    user: { id: foundUser.id, email, token },
+  });
 };
 
 export { signUp, login };
