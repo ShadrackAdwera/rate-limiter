@@ -26,7 +26,7 @@ export const user = {
 
 export const loginRoute = '/api/auth/login';
 
-jest.setTimeout(300000);
+jest.setTimeout(600000);
 beforeAll(async () => {
   process.env.JWT_KEY = '=6:$}/N7Hp21HrX[bCiI`xj49xi,_';
   mongo = await MongoMemoryServer.create();
