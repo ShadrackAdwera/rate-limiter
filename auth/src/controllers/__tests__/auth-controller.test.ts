@@ -1,5 +1,6 @@
 import request from 'supertest';
 import { app } from '../../app';
+import { loginRoute } from '../../test/setup';
 
 const signUpRoute = '/api/auth/sign-up';
 
@@ -34,7 +35,25 @@ describe('login controller', () => {
   beforeEach(async () => {
     return request(app).post(signUpRoute).send(validUser).expect(201);
   });
-  it.todo('should return a 422 on invalid email');
-  it.todo('should return a 200 on successful login');
-  it.todo('should return a 400 when the email does not (sign up instead)');
+  it('should return a 422 on invalid email', async () => {
+    return request(app)
+      .post(loginRoute)
+      .send({ email: 'testingmail.com', password: '1qazwsxda' })
+      .expect(422);
+  });
+  it('should return a 200 on successful login', async () => {
+    return request(app)
+      .post(loginRoute)
+      .send({ email: validUser.email, password: validUser.password })
+      .expect(200);
+  });
+  it.todo(
+    'should return a 404 when the email does not exist (sign up instead)',
+    async () => {
+      return request(app)
+        .post(loginRoute)
+        .send({ email: 'testing-err@mail.com', password: '123wesdxca' })
+        .expect(404);
+    }
+  );
 });
