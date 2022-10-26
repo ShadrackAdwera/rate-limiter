@@ -6,6 +6,7 @@ declare global {
   var getJwt: () => string;
 }
 
+export const userId = new mongoose.Types.ObjectId();
 let mongo: MongoMemoryServer;
 
 export const loginRoute = '/api/auth/login';
@@ -32,7 +33,7 @@ afterAll(async () => {
 global.getJwt = () => {
   //await await request(app).post(signUpRoute).send(user).expect(201);
   const token = jwt.sign(
-    { userId: mongoose.Types.ObjectId, email: 'test@mail.com' },
+    { userId, email: 'test@mail.com' },
     process.env.JWT_KEY!,
     { expiresIn: '1h' }
   );
