@@ -1,7 +1,7 @@
 import { Schema, Model, model, Document } from 'mongoose';
 import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
-interface RandomDoc extends Document {
+export interface RandomDoc extends Document {
   title: string;
   createdBy: string;
   version: number;
