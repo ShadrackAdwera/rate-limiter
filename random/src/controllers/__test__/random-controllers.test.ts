@@ -66,6 +66,13 @@ describe('random controllers', () => {
       await newRandom.save();
     });
     it.todo('validates if user is available in the DB returns a 404 if not');
+    it('returns a 404 if random with the id provides is not found', async () => {
+      const itemId = new mongoose.Types.ObjectId();
+      return request(app)
+        .get(`${baseRandomUrl}/${itemId}`)
+        .send({})
+        .expect(404);
+    });
     it('returns a 401 when called without authetication', async () => {
       return request(app).get(baseRandomUrl).send().expect(401);
     });
