@@ -5,15 +5,46 @@ import { Random } from '../../models/Random';
 import { userId } from '../../test/setup';
 
 const baseRandomUrl = '/api/random';
+const randomItem = {
+  title: 'Something Random',
+  createdBy: userId,
+};
 
 describe('random controllers', () => {
-  describe('add random controller', () => {});
+  describe('add random controller', () => {
+    it('returns a 401 when adding a random without authentication', async () => {
+      return request(app)
+        .post(`${baseRandomUrl}/new`)
+        .send(randomItem)
+        .expect(401);
+    });
+    it.todo('validates if user is available in the DB returns a 404 if not');
+    it('returns a 400 when a random is added without a title', async () => {
+      return request(app)
+        .post(`${baseRandomUrl}/new`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${global.getJwt()}`)
+        .send({ title: '', createdBy: randomItem.createdBy })
+        .expect(400);
+    });
+    it('saves a random to the database sucessfully and returns a 201', async () => {
+      let randoms = await Random.find({ createdBy: randomItem.createdBy });
+      expect(randoms.length).toEqual(0);
+      const newRandom = new Random(randomItem);
+      await newRandom.save();
+      await request(app)
+        .post(`${baseRandomUrl}/new`)
+        .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${global.getJwt()}`)
+        .send({ title: 'Random Item' })
+        .expect(201);
+      randoms = await Random.find({ createdBy: randomItem.createdBy });
+      expect(randoms.length).toEqual(1);
+    });
+  });
   describe('get random controller', () => {
     beforeEach(async () => {
-      const newRandom = new Random({
-        title: 'Something Random',
-        createdBy: userId,
-      });
+      const newRandom = new Random(randomItem);
       await newRandom.save();
     });
     it('returns a 401 when called without authetication', async () => {
