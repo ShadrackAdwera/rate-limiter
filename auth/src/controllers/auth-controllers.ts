@@ -1,10 +1,11 @@
 import { validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
-import { HttpError } from '@adwesh/common';
+import { HttpError, natsWraper } from '@adwesh/common';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import { User } from '../models/User';
+import { UserCreatedPublisher } from '../events/UserCreatedPublisher';
 
 const signUp = async (req: Request, res: Response, next: NextFunction) => {
   const error = validationResult(req);
@@ -64,6 +65,22 @@ const signUp = async (req: Request, res: Response, next: NextFunction) => {
       )
     );
   }
+
+  try {
+    await new UserCreatedPublisher(natsWraper.client).publish({
+      id: newUser.id,
+      email: newUser.email,
+      category: '',
+    });
+  } catch (error) {
+    return next(
+      new HttpError(
+        error instanceof Error ? error.message : 'An error occured',
+        500
+      )
+    );
+  }
+
   res.status(201).json({
     message: 'Sign Up Successful',
     user: { id: newUser.id, email, token },
