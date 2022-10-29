@@ -19,13 +19,13 @@ describe('random controllers', () => {
         .expect(401);
     });
     it.todo('validates if user is available in the DB returns a 404 if not');
-    it('returns a 400 when a random is added without a title', async () => {
+    it('returns a 422 when a random is added without a title', async () => {
       return request(app)
         .post(`${baseRandomUrl}/new`)
         .set('Content-Type', 'application/json')
         .set('Authorization', `Bearer ${global.getJwt()}`)
         .send({ title: '', createdBy: randomItem.createdBy })
-        .expect(400);
+        .expect(422);
     });
     it('saves a random to the database sucessfully and returns a 201', async () => {
       let randoms = await Random.find({ createdBy: randomItem.createdBy });
