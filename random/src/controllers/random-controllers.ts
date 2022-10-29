@@ -8,7 +8,7 @@ const getRandom = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user?.userId;
   if (!userId)
     return next(
-      new HttpError('No user Id found for the provided request', 400)
+      new HttpError('No user Id found for the provided request', 404)
     );
 
   let randoms: (RandomDoc & { _id: string })[];
@@ -57,7 +57,7 @@ const addRandom = async (req: Request, res: Response, next: NextFunction) => {
   let foundUser: (UserDoc & { _id: string }) | null;
   if (!userId)
     return next(
-      new HttpError('No user Id found for the provided request', 400)
+      new HttpError('No user Id found for the provided request', 404)
     );
 
   try {
@@ -73,7 +73,7 @@ const addRandom = async (req: Request, res: Response, next: NextFunction) => {
 
   if (!foundUser)
     return next(
-      new HttpError('No user Id found for the provided request', 400)
+      new HttpError('No user Id found for the provided request', 404)
     );
 
   const newRando = new Random({

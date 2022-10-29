@@ -1,16 +1,19 @@
 import mongoose from 'mongoose';
 import request from 'supertest';
 import { app } from '../../app';
-import { Random } from '../../models/Random';
+import { Random, User } from '../../models/Random';
 import { userId } from '../../test/setup';
 
 const baseRandomUrl = '/api/random';
 const randomItem = {
   title: 'Something Random',
-  createdBy: userId,
 };
 
 describe('random controllers', () => {
+  beforeEach(async () => {
+    const newUser = new User({ _id: userId, email: 'test@mail.com' });
+    await newUser.save();
+  });
   describe('add random controller', () => {
     it('returns a 401 when adding a random without authentication', async () => {
       return request(app)
@@ -24,27 +27,25 @@ describe('random controllers', () => {
         .post(`${baseRandomUrl}/new`)
         .set('Content-Type', 'application/json')
         .set('Authorization', `Bearer ${global.getJwt()}`)
-        .send({ title: '', createdBy: randomItem.createdBy })
+        .send({ title: '' })
         .expect(422);
     });
     it('saves a random to the database sucessfully and returns a 201', async () => {
-      let randoms = await Random.find({ createdBy: randomItem.createdBy });
+      let randoms = await Random.find();
       expect(randoms.length).toEqual(0);
-      const newRandom = new Random(randomItem);
-      await newRandom.save();
       await request(app)
         .post(`${baseRandomUrl}/new`)
         .set('Content-Type', 'application/json')
         .set('Authorization', `Bearer ${global.getJwt()}`)
         .send({ title: 'Random Item' })
         .expect(201);
-      randoms = await Random.find({ createdBy: randomItem.createdBy });
+      randoms = await Random.find();
       expect(randoms.length).toEqual(1);
     });
   });
   describe('get random controller', () => {
     beforeEach(async () => {
-      const newRandom = new Random(randomItem);
+      const newRandom = new Random({ title: 'Random 1', createdBy: userId });
       await newRandom.save();
     });
     it.todo('validates if user is available in the DB returns a 404 if not');
@@ -57,19 +58,20 @@ describe('random controllers', () => {
         .set('Authorization', `Bearer ${global.getJwt()}`)
         .send()
         .expect(200);
-      expect(response.body.length).toEqual(1);
+      expect(response.body.randoms.length).toEqual(1);
     });
   });
-  describe('get by id random controller', async () => {
+  describe('get by id random controller', () => {
     beforeEach(async () => {
-      const newRandom = new Random(randomItem);
+      const newRandom = new Random({ title: 'Random 1', createdBy: userId });
       await newRandom.save();
     });
     it.todo('validates if user is available in the DB returns a 404 if not');
-    it('returns a 404 if random with the id provides is not found', async () => {
+    it('returns a 404 if random with the id provided is not found', async () => {
       const itemId = new mongoose.Types.ObjectId();
       return request(app)
         .get(`${baseRandomUrl}/${itemId}`)
+        .set('Authorization', `Bearer ${global.getJwt()}`)
         .send({})
         .expect(404);
     });
@@ -77,7 +79,7 @@ describe('random controllers', () => {
       return request(app).get(baseRandomUrl).send().expect(401);
     });
     it('fetches random item by id for an authenticated user', async () => {
-      const newRandom = new Random(randomItem);
+      const newRandom = new Random({ title: 'Random 1', createdBy: userId });
       await newRandom.save();
       const response = await request(app)
         .get(`${baseRandomUrl}/${newRandom.id}`)

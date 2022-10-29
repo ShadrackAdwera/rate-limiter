@@ -23,7 +23,7 @@ export class UserCreatedListener extends Listener<UserCreatedEvent> {
 
     if (foundUser) msg.ack();
 
-    const newUser = new User({ email: data.email });
+    const newUser = new User({ _id: data.id, email: data.email });
 
     try {
       await newUser.save();
