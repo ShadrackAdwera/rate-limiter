@@ -2,6 +2,7 @@ import { natsWraper } from '@adwesh/common';
 import mongoose from 'mongoose';
 
 import { app } from './app';
+import { UserCreatedListener } from './events/UserCreatedListener';
 
 if (!process.env.JWT_KEY) {
   throw new Error('JWT is not defined!');
@@ -35,7 +36,7 @@ const start = async () => {
       console.log('NATS shutting down . . .');
       process.exit();
     });
-
+    await new UserCreatedListener(natsWraper.client).listen();
     process.on('SIGINT', () => natsWraper.client.close());
     process.on('SIGTERM', () => natsWraper.client.close());
     app.listen(5001);
