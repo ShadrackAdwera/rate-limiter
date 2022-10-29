@@ -59,7 +59,25 @@ describe('random controllers', () => {
       expect(response.body.length).toEqual(1);
     });
   });
-  describe('get by id random controller', () => {});
+  describe('get by id random controller', async () => {
+    beforeEach(async () => {
+      const newRandom = new Random(randomItem);
+      await newRandom.save();
+    });
+    it('returns a 401 when called without authetication', async () => {
+      return request(app).get(baseRandomUrl).send().expect(401);
+    });
+    it('fetches random item by id for an authenticated user', async () => {
+      const newRandom = new Random(randomItem);
+      await newRandom.save();
+      const response = await request(app)
+        .get(`${baseRandomUrl}/${newRandom.id}`)
+        .set('Authorization', `Bearer ${global.getJwt()}`)
+        .send()
+        .expect(200);
+      expect(response.body.random.title).toEqual(newRandom.title);
+    });
+  });
   describe('update random controller', () => {});
   describe('delete random controller', () => {});
 });
