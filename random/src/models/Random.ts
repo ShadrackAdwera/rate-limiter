@@ -12,6 +12,15 @@ interface RandomModel extends Model<RandomDoc> {
   createdBy: string;
 }
 
+export interface UserDoc extends Document {
+  email: string;
+  version: number;
+}
+
+interface UserModel extends Model<UserDoc> {
+  email: string;
+}
+
 const randomSchema = new Schema(
   {
     title: { type: String, required: true },
@@ -20,8 +29,18 @@ const randomSchema = new Schema(
   { timestamps: true, toJSON: { getters: true } }
 );
 
+const userSchema = new Schema(
+  {
+    email: { type: String, required: true, unique: true },
+  },
+  { timestamps: true, toJSON: { getters: true } }
+);
+
 randomSchema.set('versionKey', 'version');
+userSchema.set('versionKey', 'version');
 randomSchema.plugin(updateIfCurrentPlugin);
+userSchema.plugin(updateIfCurrentPlugin);
 
 const Random = model<RandomDoc, RandomModel>('random', randomSchema);
-export { Random };
+const User = model<UserDoc, UserModel>('user', userSchema);
+export { Random, User };
