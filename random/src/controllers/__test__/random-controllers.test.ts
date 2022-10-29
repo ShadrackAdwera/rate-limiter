@@ -47,6 +47,7 @@ describe('random controllers', () => {
       const newRandom = new Random(randomItem);
       await newRandom.save();
     });
+    it.todo('validates if user is available in the DB returns a 404 if not');
     it('returns a 401 when called without authetication', async () => {
       return request(app).get(baseRandomUrl).send().expect(401);
     });
@@ -64,6 +65,7 @@ describe('random controllers', () => {
       const newRandom = new Random(randomItem);
       await newRandom.save();
     });
+    it.todo('validates if user is available in the DB returns a 404 if not');
     it('returns a 401 when called without authetication', async () => {
       return request(app).get(baseRandomUrl).send().expect(401);
     });
@@ -78,6 +80,10 @@ describe('random controllers', () => {
       expect(response.body.random.title).toEqual(newRandom.title);
     });
   });
-  describe('update random controller', () => {});
-  describe('delete random controller', () => {});
+  describe('update random controller', () => {
+    it.todo('validates if user is available in the DB returns a 404 if not');
+  });
+  describe('delete random controller', () => {
+    it.todo('validates if user is available in the DB returns a 404 if not');
+  });
 });
