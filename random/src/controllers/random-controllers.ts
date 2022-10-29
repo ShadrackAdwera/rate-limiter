@@ -2,7 +2,7 @@ import { validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 import { HttpError } from '@adwesh/common';
 
-import { RandomDoc, Random } from '../models/Random';
+import { RandomDoc, Random, UserDoc, User } from '../models/Random';
 
 const getRandom = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user?.userId;
@@ -54,7 +54,24 @@ const addRandom = async (req: Request, res: Response, next: NextFunction) => {
     return next(new HttpError('Please provide a title', 422));
   const userId = req.user?.userId;
   const { title } = req.body;
+  let foundUser: (UserDoc & { _id: string }) | null;
   if (!userId)
+    return next(
+      new HttpError('No user Id found for the provided request', 400)
+    );
+
+  try {
+    foundUser = await User.findById(userId);
+  } catch (error) {
+    return next(
+      new HttpError(
+        error instanceof Error ? error.message : 'Internal server error',
+        500
+      )
+    );
+  }
+
+  if (!foundUser)
     return next(
       new HttpError('No user Id found for the provided request', 400)
     );
